@@ -70,8 +70,9 @@ def get_validated_continuations(results,
                                 parse_func,
                                 ctoken_path=""):
     items = []
+    counter = 0
     while 'continuations' in results and len(items) < limit:
-
+        print('\nContinuation #' + str(counter)+':')
         ctoken = nav(
             results,
             ['continuations', 0, 'next' + ctoken_path + 'ContinuationData', 'continuation'])
@@ -86,6 +87,7 @@ def get_validated_continuations(results,
                                                                  3)
         results = response['results']
         items.extend(response['parsed'])
+        counter += 1
 
     return items
 
@@ -105,6 +107,8 @@ def resend_request_until_parsed_response_is_valid(request_func, request_addition
         response = request_func(request_additional_params)
         parsed_object = parse_func(response)
         retry_counter += 1
+    if retry_counter == max_retries:
+        print('Max retries reached aborting...')
     return parsed_object
 
 
@@ -113,7 +117,12 @@ def validate_response(response, per_page, limit, current_count):
     expected_items_count = min(per_page, remaining_items_count)
 
     # response is invalid, if it has less items then minimal expected count
-    return len(response['parsed']) >= expected_items_count
+    if len(response['parsed']) >= expected_items_count:
+        print('Valid Response: ' + str(len(response['parsed'])) + '/' + str(expected_items_count))
+        return True
+    else:
+        print('Invalid Response: ' + str(len(response['parsed'])) + '/' + str(expected_items_count))
+    return False
 
 
 def nav(root, items, none_if_absent=False):

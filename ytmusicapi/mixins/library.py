@@ -53,7 +53,7 @@ class LibraryMixin:
         body = {'browseId': 'FEmusic_liked_videos'}
         endpoint = 'browse'
         per_page = 25
-
+        print('\nMain request: ')
         request_func = lambda additionalParams: self._send_request(endpoint, body)
         parse_func = lambda raw_response: parse_library_songs(raw_response)
         validate_func = lambda parsed: validate_response(parsed, per_page, limit, 0)
